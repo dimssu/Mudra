@@ -6,6 +6,7 @@ export interface IRefreshToken extends Document {
   token: string;
   expiresAt: Date;
   isRevoked: boolean;
+  family: string;
 }
 
 const refreshTokenSchema = new Schema<IRefreshToken>(
@@ -29,6 +30,11 @@ const refreshTokenSchema = new Schema<IRefreshToken>(
       type: Boolean,
       default: false,
     },
+    family: {
+      type: String,
+      required: true,
+      index: true
+    }
   },
   { timestamps: true }
 );

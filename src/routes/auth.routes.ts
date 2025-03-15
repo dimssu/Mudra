@@ -3,11 +3,10 @@ import { AuthController } from '../controllers/auth.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 
 const router = Router();
-const authController = new AuthController();
 
-router.post('/register', authController.register);
-router.post('/login', authController.login);
-router.post('/refresh-token', authController.refreshToken);
-router.post('/logout', authenticate, authController.logout);
+router.post('/register', AuthController.register);
+router.post('/login', AuthController.login);
+router.post('/refresh-token', AuthController.refreshToken);
+router.post('/logout', authenticate, AuthController.logout);
 
 export default router; 

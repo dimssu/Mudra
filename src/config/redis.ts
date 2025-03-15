@@ -1,5 +1,5 @@
+import { logger } from '../utils/logger';
 import Redis from 'ioredis';
-import { logger } from '@/utils/logger';
 
 const redisClient = new Redis({
   host: process.env.REDIS_HOST || 'localhost',

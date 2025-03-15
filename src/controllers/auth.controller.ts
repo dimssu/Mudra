@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 const authService = new AuthService();
 
 export class AuthController {
-  async register(req: Request, res: Response) {
+  static async register(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
       const result = await authService.register(email, password);
@@ -14,7 +14,7 @@ export class AuthController {
     }
   }
 
-  async login(req: Request, res: Response) {
+  static async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
       const result = await authService.login(email, password);
@@ -24,7 +24,7 @@ export class AuthController {
     }
   }
 
-  async refreshToken(req: Request, res: Response) {
+  static async refreshToken(req: Request, res: Response) {
     try {
       const { refreshToken } = req.body;
       const result = await authService.refreshToken(refreshToken);
@@ -34,7 +34,7 @@ export class AuthController {
     }
   }
 
-  async logout(req: Request, res: Response) {
+  static async logout(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
       if (!userId) {

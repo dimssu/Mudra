@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { IUser, User } from '../models/User';
-import { logger } from '@/utils/logger';
-import { RedisCache } from '@/utils/redis.util';
+import { logger } from '../utils/logger';
+import { RedisCache } from '../utils/redis.util';
 
 export const Roles = {
   ADMIN: 'admin',

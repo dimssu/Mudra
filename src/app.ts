@@ -6,6 +6,9 @@ import morgan from 'morgan';
 import { logger } from './utils/logger';
 import authRoutes from './routes/auth.routes';
 import { rateLimiter } from './middlewares/rateLimit.middleware';
+import { errorHandler } from './middlewares/error.middleware';
+import { validateRegister, validateLogin, validateRefreshToken } from './middlewares/validation.middleware';
+import { AuthController } from './controllers/auth.controller';
 
 const app = express();
 
@@ -34,10 +37,12 @@ app.use('/auth', rateLimiter);
 // Routes
 app.use('/auth', authRoutes);
 
-// Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error('Unhandled error:', err);
-  res.status(500).json({ error: 'Internal server error' });
-});
+// Auth routes with validation
+app.post('/auth/register', validateRegister, AuthController.register);
+app.post('/auth/login', validateLogin, AuthController.login);
+app.post('/auth/refresh-token', validateRefreshToken, AuthController.refreshToken);
+
+// Error handling middleware (should be last)
+app.use(errorHandler);
 
 export default app; 

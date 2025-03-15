@@ -2,10 +2,11 @@ import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 
 export interface IUser extends Document {
+  _id: string;
   email: string;
   password: string;
-  role: 'user' | 'admin';
-  comparePassword: (candidatePassword: string) => Promise<boolean>;
+  role: string;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>(

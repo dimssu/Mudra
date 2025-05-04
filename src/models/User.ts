@@ -5,7 +5,16 @@ export interface IUser extends Document {
   _id: string;
   email: string;
   password: string;
+  authMethod: string;
   role: string;
+  userName?: string;
+  first_name?: string;
+  last_name?: string;
+  profile_picture_url?: string;
+  phone_number?: string;
+  is_active: boolean;
+  isVerified: boolean;
+  isDeleted: boolean;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -20,13 +29,50 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
       minlength: 8,
+    },
+    authMethod: {
+      type: String,
+      required: true,
+      enum: ["email/password", "google"],
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+      enum: ['SUPER_ADMIN', 'ORG_ADMIN', 'ORG_USER'],
+      default: 'ORG_USER',
+    },
+    userName: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true,
+    },
+    first_name: {
+      type: String,
+      trim: true,
+    },
+    last_name: {
+      type: String,
+      trim: true,
+    },
+    profile_picture_url: {
+      type: String,
+    },
+    phone_number: {
+      type: String,
+      trim: true,
+    },
+    is_active: {
+      type: Boolean,
+      default: true,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

@@ -1,36 +1,66 @@
 import { Request, Response } from 'express';
-import { AuthService } from '../services/auth.service';
-
-const authService = new AuthService();
+import { STATUS_CODES } from '../constants/statusCodes';
+import AuthService from '../services/auth.service';
 
 export class AuthController {
+  static async getAccessWithGoogle(req: Request, res: Response){
+    try{
+      const { idToken } = req.body;
+      const result = await AuthService.getAccessWithGoogle(idToken)
+      res.status(STATUS_CODES.SUCCESS).json(result)
+    }catch(error: any){
+      res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: error.message })
+    }
+  }
+
   static async register(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
-      const result = await authService.register(email, password);
-      res.status(201).json(result);
+      const { 
+        email, 
+        password, 
+        userName, 
+        first_name, 
+        last_name, 
+        profile_picture_url, 
+        phone_number 
+      } = req.body;
+      
+      const userData = {
+        userName,
+        first_name,
+        last_name,
+        profile_picture_url,
+        phone_number
+      };
+      
+      const result = await AuthService.register(email, password, userData);
+      res.status(STATUS_CODES.SUCCESS).json(result);
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      if(error.name == "ValidationError"){
+        return res.status(STATUS_CODES.BAD_REQUEST).json({ error: error.message})
+      }
+
+      res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: error.message });
     }
   }
 
   static async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
-      const result = await authService.login(email, password);
-      res.json(result);
+      const result = await AuthService.login(email, password);
+      res.status(STATUS_CODES.SUCCESS).json(result);
     } catch (error: any) {
-      res.status(401).json({ error: error.message });
+      res.status(STATUS_CODES.UNAUTHORIZED).json({ error: error.message });
     }
   }
 
   static async refreshToken(req: Request, res: Response) {
     try {
       const { refreshToken } = req.body;
-      const result = await authService.refreshToken(refreshToken);
-      res.json(result);
+      const result = await AuthService.refreshToken(refreshToken);
+      res.status(STATUS_CODES.SUCCESS).json(result);
     } catch (error: any) {
-      res.status(401).json({ error: error.message });
+      res.status(STATUS_CODES.UNAUTHORIZED).json({ error: error.message });
     }
   }
 
@@ -38,12 +68,26 @@ export class AuthController {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(STATUS_CODES.UNAUTHORIZED).json({ error: 'Unauthorized' });
       }
-      await authService.logout(userId);
-      res.json({ message: 'Logged out successfully' });
+      await AuthService.logout(userId);
+      res.status(STATUS_CODES.SUCCESS).json({ message: 'Logged out successfully' });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: error.message });
+    }
+  }
+
+  static async verifyToken(req: Request, res: Response) {
+    try {
+      const accessToken  = req.headers.authorization;
+      if (!accessToken) {
+        return res.status(STATUS_CODES.NOT_FOUND).json({ error: 'Access token not provided' });
+      }
+
+      const decodedToken = await AuthService.verifyToken(accessToken);
+      res.status(STATUS_CODES.SUCCESS).json({ verified: true, decodedToken, message: 'Token verified successfully' });
+    } catch (error: any) {
+      res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ verified: false, error: error.message });
     }
   }
 } 

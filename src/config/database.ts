@@ -3,7 +3,7 @@ import { logger } from '../utils/logger';
 
 export const connectDatabase = async (): Promise<void> => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/auth-service';
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/auth-service';
     await mongoose.connect(mongoUri);
     logger.info('Successfully connected to MongoDB.');
   } catch (error) {

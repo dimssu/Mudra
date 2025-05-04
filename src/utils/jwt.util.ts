@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { redisClient } from '../config/redis';
-import { logger } from '../utils/logger';
+import { logger } from './logger';
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET as string;
 if (!JWT_SECRET) {
   logger.error('JWT_SECRET is not defined');
   process.exit(1);

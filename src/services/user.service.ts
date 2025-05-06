@@ -3,16 +3,26 @@ import { ValidationError, NotFoundError } from '../utils/errors';
 import { RedisCache } from '../utils/redis-cache';
 
 export default class UserService {
-  static async getAllUsers(page: number = 1, limit: number = 10) {
+  static async getAllUsers(page: number = 1, limit: number = 10, search?: string) {
     const skip = (page - 1) * limit;
     
-    // Only return non-deleted users
-    const users = await User.find({ isDeleted: { $ne: true } }, { password: 0 })
+    const query: any = { isDeleted: { $ne: true } };
+    
+    // Add search functionality if search parameter is provided
+    if (search) {
+      query.$or = [
+        { first_name: { $regex: search, $options: 'i' } },
+        { last_name: { $regex: search, $options: 'i' } },
+        { userName: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const users = await User.find(query, { password: 0 })
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
     
-    const total = await User.countDocuments({ isDeleted: { $ne: true } });
+    const total = await User.countDocuments(query);
     
     return {
       users,

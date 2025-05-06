@@ -6,9 +6,10 @@ export class UserController {
   static async getAllUsers(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const search = req.query.search as string;
       
-      const result = await UserService.getAllUsers(page, limit);
+      const result = await UserService.getAllUsers(page, limit, search);
       res.status(STATUS_CODES.SUCCESS).json(result);
     } catch (error: any) {
       res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: error.message });

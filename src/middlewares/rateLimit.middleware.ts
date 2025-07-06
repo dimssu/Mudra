@@ -24,7 +24,7 @@ export const rateLimiter = (endpoint: keyof typeof RATE_LIMITS) => {
       
       // Increment request counter in Redis
       // If key doesn't exist, it's created and set to 1
-      const requests = await redisClient.incr(key);
+      const requests: any = await redisClient.incr(key);
       
       // If this is the first request, set the expiration time
       if (requests === 1) {

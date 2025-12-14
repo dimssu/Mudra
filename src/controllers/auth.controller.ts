@@ -84,7 +84,10 @@ export class AuthController {
         return res.status(STATUS_CODES.NOT_FOUND).json({ error: 'Access token not provided' });
       }
 
-      const decodedToken = await AuthService.verifyToken(accessToken);
+      const token = accessToken.split(' ')[1];
+
+      const decodedToken = await AuthService.verifyToken(token);
+      
       res.status(STATUS_CODES.SUCCESS).json({ verified: true, decodedToken, message: 'Token verified successfully' });
     } catch (error: any) {
       res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ verified: false, error: error.message });

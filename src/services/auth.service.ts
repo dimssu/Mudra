@@ -143,8 +143,12 @@ export default class AuthService {
   }
 
   static async verifyToken(accessToken: string) {
-    const JWT_SECRET = process.env.JWT_SECRET as string
-    const decodedToken = jwt.verify(accessToken, JWT_SECRET)
-    return decodedToken
+    try {
+      const JWT_SECRET = process.env.JWT_SECRET as string
+      const decodedToken = jwt.verify(accessToken, JWT_SECRET)
+      return decodedToken
+    } catch (error) {
+      throw new AuthenticationError('Invalid token')
+    }
   }
 } 

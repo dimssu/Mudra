@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-const serviceAccount = "growthmagnet-e9985-firebase-adminsdk-fbsvc-f689db1603.json"
+const serviceAccount = "oauth-f6bd6-firebase-adminsdk-fbsvc-a2e612793f.json"
 import { logger } from "./logger";
 
 admin.initializeApp({

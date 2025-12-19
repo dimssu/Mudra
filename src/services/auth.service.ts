@@ -14,16 +14,46 @@ import { storeTokenAndCacheUser } from '../utils/auth.helper';
 export default class AuthService {
 
   static async getAccessWithGoogle(idToken: string){
-    const decodedToken = await verifyIdToken(idToken)
-    const uid = decodedToken.uid
+    try {
+      const decodedToken = await verifyIdToken(idToken);
+      const uid = decodedToken.uid;
 
-    const userDetails = await getUserDetails(uid)
+      const userDetails = await getUserDetails(uid);
 
-    if(userDetails){
+      if (!userDetails) {
+        throw new AuthenticationError('Unable to fetch user details from Google');
+      }
+
       let user: IUser | null = await User.findOne({ email: userDetails.email });
 
-      if(!user){
-        user = new User({ email: userDetails.email, authMethod: "google" });
+      if (!user) {
+        // New user - create account with Google details
+        user = new User({ 
+          email: userDetails.email, 
+          authMethod: "google",
+          googleId: uid,
+          displayName: userDetails.displayName || '',
+          first_name: userDetails.displayName?.split(' ')[0] || '',
+          last_name: userDetails.displayName?.split(' ').slice(1).join(' ') || '',
+          photoURL: userDetails.photoURL || '',
+          profile_picture_url: userDetails.photoURL || '',
+          emailVerified: userDetails.emailVerified || false,
+          isVerified: userDetails.emailVerified || false,
+        });
+        await user.save();
+      } else {
+        // Existing user - update Google details if they signed up with email/password before
+        if (user.authMethod === 'email/password') {
+          user.authMethod = 'google';
+        }
+        user.googleId = uid;
+        user.displayName = userDetails.displayName || user.displayName;
+        user.photoURL = userDetails.photoURL || user.photoURL;
+        user.profile_picture_url = userDetails.photoURL || user.profile_picture_url;
+        user.emailVerified = userDetails.emailVerified || user.emailVerified;
+        if (userDetails.emailVerified) {
+          user.isVerified = true;
+        }
         await user.save();
       }
 
@@ -43,9 +73,25 @@ export default class AuthService {
         role: user.role,
       });
 
-      return { accessToken, refreshToken, user: { id: user._id, email: user.email } };
+      return { 
+        accessToken, 
+        refreshToken, 
+        user: { 
+          id: user._id, 
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified,
+          first_name: user.first_name,
+          last_name: user.last_name,
+        } 
+      };
+    } catch (error: any) {
+      if (error instanceof AuthenticationError) {
+        throw error;
+      }
+      throw new AuthenticationError('Google authentication failed: ' + error.message);
     }
-
   }
 
   static async register(email: string, password: string, userData: Partial<IUser> = {}) {

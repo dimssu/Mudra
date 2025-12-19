@@ -15,6 +15,11 @@ export interface IUser extends Document {
   is_active: boolean;
   isVerified: boolean;
   isDeleted: boolean;
+  // Google OAuth specific fields
+  googleId?: string;
+  displayName?: string;
+  photoURL?: string;
+  emailVerified?: boolean;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -71,6 +76,22 @@ const userSchema = new Schema<IUser>(
       default: false,
     },
     isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    displayName: {
+      type: String,
+      trim: true,
+    },
+    photoURL: {
+      type: String,
+    },
+    emailVerified: {
       type: Boolean,
       default: false,
     },
